@@ -350,6 +350,7 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
                 if (this->deflatten(i) == this->lastClickedCoords)
                     continue;
                 this->mineLocation.emplace(this->deflatten(i));
+                break;
             }
         }
     }
