@@ -160,7 +160,10 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
                 switch (this->gameState)
                 {
                 case GameState::GAME_ONGOING:
-                    sprite = this->textureMgr.getSprite(SpriteType::COVERED_TILE);
+                    if (this->telegraphedTile.contains({x, y}))
+                        sprite = this->textureMgr.getSprite(SpriteType::UNCOVERED_0);
+                    else
+                        sprite = this->textureMgr.getSprite(SpriteType::COVERED_TILE);
                     break;
                 case GameState::GAME_WON:
                     sprite = this->textureMgr.getSprite(SpriteType::FLAGGED_TILE);
@@ -357,4 +360,41 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
         this->gameState = GameState::GAME_LOST;
     else if (this->checkWinCon())
         this->gameState = GameState::GAME_WON;
+}
+
+void GameBoard::telegraph(float x, float y)
+{
+    if (this->isOutOfBounds(x, y))
+        return;
+
+    this->clearTelegraph();
+    switch (this->getBoardState(x, y))
+    {
+    case TileState::COVERED:
+        this->telegraphedTile.emplace(x, y);
+        break;
+    case TileState::UNCOVERED:
+        for (auto i: std::views::iota(-1, 2))
+            for (auto j: std::views::iota(-1, 2))
+            {
+                if (i == 0 and j == 0)
+                    continue;
+                auto nX = x + i;
+                auto nY = y + j;
+                // Out of bounds
+                if (this->isOutOfBounds(nX, nY))
+                    continue;
+                // Not opened, not marked
+                if (this->getBoardState(nX, nY) == TileState::COVERED)
+                    this->telegraphedTile.emplace(nX, nY);
+            }
+        break;
+    case TileState::FLAGGED:
+        break;
+    }
+}
+
+void GameBoard::clearTelegraph()
+{
+    this->telegraphedTile.clear();
 }

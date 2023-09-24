@@ -12,8 +12,6 @@
 #include <SFML/Window.hpp>
 
 // TODO: Add timer and counter
-// TODO: Show tiles when mouseclick is held down
-// TODO: Don't allow losing on first click
 
 constexpr uint32_t WINDOW_WIDTH {600};
 constexpr uint32_t WINDOW_HEIGHT {800};
@@ -29,6 +27,7 @@ private:
     uint32_t windowHeight;
 
     GameBoard gameBoard;
+    bool lmbHeld {false};
 
 public:
     MainApp(uint32_t windowWidth, uint32_t windowHeight, std::string_view windowTitle, uint32_t boardWidth = 16,
@@ -74,7 +73,26 @@ public:
                 case sf::Event::Closed:
                     this->window.close();
                     break;
+                case sf::Event::MouseButtonPressed:
+                    if (event.mouseButton.button == sf::Mouse::Button::Left)
+                    {
+                        this->lmbHeld = true;
+                        boardX        = (event.mouseButton.x - offsetX) / scalingFactor / TILE_SIZE;
+                        boardY        = (event.mouseButton.y - offsetY) / scalingFactor / TILE_SIZE;
+                        this->gameBoard.telegraph(boardX, boardY);
+                    }
+                    break;
+                case sf::Event::MouseMoved:
+                    if (this->lmbHeld)
+                    {
+                        boardX = (event.mouseMove.x - offsetX) / scalingFactor / TILE_SIZE;
+                        boardY = (event.mouseMove.y - offsetY) / scalingFactor / TILE_SIZE;
+                        this->gameBoard.telegraph(boardX, boardY);
+                    }
+                    break;
                 case sf::Event::MouseButtonReleased:
+                    this->lmbHeld = false;
+                    this->gameBoard.clearTelegraph();
                     switch (this->gameBoard.getGameState())
                     {
                     case GameState::GAME_ONGOING:

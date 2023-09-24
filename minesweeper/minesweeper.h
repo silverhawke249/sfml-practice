@@ -83,6 +83,8 @@ private:
     std::vector<TileState> boardState;
     std::tuple<int32_t, int32_t> lastClickedCoords;
 
+    std::set<std::tuple<int32_t, int32_t>> telegraphedTile;
+
     inline auto flatten(int32_t x, int32_t y) const
     {
         return x + y * this->boardWidth;
@@ -119,11 +121,9 @@ private:
     }
 
     int32_t getMineNumber(std::tuple<int32_t, int32_t> coords) const;
-
     int32_t countFlags(int32_t x, int32_t y) const;
 
     bool checkWinCon() const;
-
     bool checkLoseCon() const;
 
     void floodFill(int32_t x, int32_t y);
@@ -143,8 +143,6 @@ public:
         this->initialize(this->boardWidth, this->boardHeight, this->mineCount);
     }
 
-    void initialize(int32_t boardWidth, int32_t boardHeight, int32_t mineCount);
-
     inline std::tuple<int32_t, int32_t> getBoardDimensions() const
     {
         return std::make_tuple(this->boardWidth * TILE_SIZE, this->boardHeight * TILE_SIZE);
@@ -155,5 +153,9 @@ public:
         return this->gameState;
     }
 
+    void initialize(int32_t boardWidth, int32_t boardHeight, int32_t mineCount);
+
     void interact(float x, float y, sf::Mouse::Button mouseBtn);
+    void telegraph(float x, float y);
+    void clearTelegraph();
 };
