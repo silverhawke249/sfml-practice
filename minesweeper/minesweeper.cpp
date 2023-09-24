@@ -326,6 +326,31 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
         break;
     }
 
+    // Losing on first turn is not allowed
+    if (this->mineLocation.contains(this->lastClickedCoords))
+    {
+        int32_t count = 0;
+        for (auto bs: this->boardState)
+        {
+            count += bs == TileState::UNCOVERED;
+            if (count > 1)
+                break;
+        }
+
+        if (count == 1)
+        {
+            this->mineLocation.erase(this->lastClickedCoords);
+            for (auto i: std::views::iota(0, this->numTiles))
+            {
+                if (this->mineLocation.contains(this->deflatten(i)))
+                    continue;
+                if (this->deflatten(i) == this->lastClickedCoords)
+                    continue;
+                this->mineLocation.emplace(this->deflatten(i));
+            }
+        }
+    }
+
     this->floodFill(x, y);
 
     if (this->checkLoseCon())
