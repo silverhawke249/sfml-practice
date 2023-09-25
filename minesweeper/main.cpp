@@ -10,6 +10,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <imgui-SFML.h>
+#include <imgui.h>
 
 // TODO: Add timer and counter
 // TODO: Store high scores
@@ -37,6 +39,12 @@ public:
         windowWidth(windowWidth), windowHeight(windowHeight), gameBoard(boardWidth, boardHeight, mineCount)
     {
         consoleLog("Initializing app...");
+        std::ignore = ImGui::SFML::Init(this->window);
+    }
+
+    ~MainApp()
+    {
+        ImGui::SFML::Shutdown();
     }
 
     void operator()()
@@ -63,18 +71,25 @@ public:
         transform.translate(offsetX, offsetY).scale(scalingFactor, scalingFactor, 0, 0);
 
         consoleLog("Starting event loop...");
+        sf::Clock deltaClock;
         sf::Event event;
         float boardX;
         float boardY;
         while (this->window.isOpen())
         {
             while (this->window.pollEvent(event))
+            {
+                ImGui::SFML::ProcessEvent(this->window, event);
+                auto imguiMouseCap = ImGui::GetIO().WantCaptureMouse;
+
                 switch (event.type)
                 {
                 case sf::Event::Closed:
                     this->window.close();
                     break;
                 case sf::Event::MouseButtonPressed:
+                    if (imguiMouseCap)
+                        continue;
                     if (event.mouseButton.button == sf::Mouse::Button::Left)
                     {
                         this->lmbHeld = true;
@@ -84,6 +99,8 @@ public:
                     }
                     break;
                 case sf::Event::MouseMoved:
+                    if (imguiMouseCap)
+                        continue;
                     if (this->lmbHeld)
                     {
                         boardX = (event.mouseMove.x - offsetX) / scalingFactor / TILE_SIZE;
@@ -92,6 +109,8 @@ public:
                     }
                     break;
                 case sf::Event::MouseButtonReleased:
+                    if (imguiMouseCap)
+                        continue;
                     this->lmbHeld = false;
                     this->gameBoard.clearTelegraph();
                     switch (this->gameBoard.getGameState())
@@ -110,10 +129,15 @@ public:
                 default:
                     break;
                 }
+            }
+
+            ImGui::SFML::Update(this->window, deltaClock.restart());
+            ImGui::ShowDemoWindow();
 
             this->window.clear(sf::Color(BACKGROUND_COLOR));
 
             this->window.draw(gameBoard, transform);
+            ImGui::SFML::Render(this->window);
 
             this->window.display();
         }

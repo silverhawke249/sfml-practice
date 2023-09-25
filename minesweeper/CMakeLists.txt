@@ -9,6 +9,7 @@ target_link_libraries(Minesweeper-Lib PUBLIC
 add_executable(Minesweeper WIN32 Main.cpp)
 target_link_libraries(Minesweeper PRIVATE
     Minesweeper-Lib
+    ImGui-SFML::ImGui-SFML
     sfml-graphics
 )
 sfml_action(Minesweeper)
