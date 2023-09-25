@@ -61,7 +61,7 @@ public:
     void loadTextures()
     {
         consoleLog("Loading tileset...");
-        this->tileset.loadFromFile("resources/tileset.png");
+        this->tileset.loadFromMemory(Minesweeper_Tileset.data(), Minesweeper_Tileset.size());
     }
 
     sf::Sprite getSprite(SpriteType spriteType) const;

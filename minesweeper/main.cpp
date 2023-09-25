@@ -1,4 +1,4 @@
-#include "minesweeper.h"
+#include "Minesweeper.h"
 
 #include <filesystem>
 #include <iostream>
@@ -12,6 +12,7 @@
 #include <SFML/Window.hpp>
 
 // TODO: Add timer and counter
+// TODO: Store high scores
 
 constexpr uint32_t WINDOW_WIDTH {600};
 constexpr uint32_t WINDOW_HEIGHT {800};

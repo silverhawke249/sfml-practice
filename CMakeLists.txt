@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(sfml-test-app)
-set(CMAKE_CXX_STANDARD 20)
+project(SFML-Test-Apps)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.x
-)
-FetchContent_MakeAvailable(SFML)
+include(cmake/Utils.cmake)
+
+add_subdirectory(deps)
 
 add_subdirectory(minesweeper)

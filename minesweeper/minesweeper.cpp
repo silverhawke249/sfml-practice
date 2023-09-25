@@ -1,4 +1,4 @@
-#include "minesweeper.h"
+#include "Minesweeper.h"
 
 #include <numeric>
 #include <queue>
