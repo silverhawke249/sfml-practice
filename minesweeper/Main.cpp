@@ -31,6 +31,7 @@ private:
     sf::RenderWindow window;
 
     GameBoard gameBoard;
+    bool debugAssist {false};
     bool lmbHeld {false};
     float scalingFactor;
     float offsetX;
@@ -92,6 +93,7 @@ public:
             {
                 ImGui::SFML::ProcessEvent(this->window, event);
                 auto imguiMouseCap = ImGui::GetIO().WantCaptureMouse;
+                auto imguiKeyCap = ImGui::GetIO().WantCaptureKeyboard;
 
                 switch (event.type)
                 {
@@ -138,6 +140,11 @@ public:
                         break;
                     }
                     break;
+                case sf::Event::KeyReleased:
+                    if (imguiKeyCap)
+                        continue;
+                    if (event.key.code == sf::Keyboard::Key::F12)
+                        this->debugAssist = !this->debugAssist;
                 default:
                     break;
                 }
@@ -172,7 +179,7 @@ public:
             auto mousePos = sf::Mouse::getPosition(this->window);
             auto mX       = (mousePos.x - offsetX) / scalingFactor / TILE_SIZE;
             auto mY       = (mousePos.y - offsetY) / scalingFactor / TILE_SIZE;
-            if (this->gameBoard.hasMine(mX, mY))
+            if (this->debugAssist and this->gameBoard.hasMine(mX, mY))
                 this->window.clear(ALERT_COLOR);
             else
                 this->window.clear(BACKGROUND_COLOR);
