@@ -32,6 +32,10 @@ private:
 
     GameBoard gameBoard;
     bool lmbHeld {false};
+    float scalingFactor;
+    float offsetX;
+    float offsetY;
+    sf::Transform boardTransform;
 
 public:
     MainApp(uint32_t boardWidth = 16, uint32_t boardHeight = 16, uint32_t mineCount = 40):
@@ -48,25 +52,34 @@ public:
         ImGui::SFML::Shutdown();
     }
 
-    void operator()()
+    void startNewGame(uint32_t boardWidth, uint32_t boardHeight, uint32_t mineCount)
+    {
+        // TODO: Modal popup to confirm if a game is ongoing
+        this->gameBoard.initialize(boardWidth, boardHeight, mineCount);
+        this->recalculateBoardPositioning();
+    }
+
+    void recalculateBoardPositioning()
     {
         auto [boardWidth, boardHeight] = this->gameBoard.getBoardDimensions();
-        float scalingFactor {MAX_BOARD_SIZE / static_cast<float>(boardWidth)};
-        if (boardHeight * scalingFactor > MAX_BOARD_SIZE)
-            scalingFactor = MAX_BOARD_SIZE / static_cast<float>(boardHeight);
+        this->scalingFactor            = MAX_BOARD_SIZE / static_cast<float>(boardWidth);
+        if (boardHeight * this->scalingFactor > MAX_BOARD_SIZE)
+            this->scalingFactor = MAX_BOARD_SIZE / static_cast<float>(boardHeight);
 
-        auto scaledWidth  = boardWidth * scalingFactor;
-        auto scaledHeight = boardHeight * scalingFactor;
+        auto scaledWidth     = boardWidth * this->scalingFactor;
+        auto scaledHeight    = boardHeight * this->scalingFactor;
 
-        auto offsetX      = static_cast<float>(MAX_BOARD_SIZE - scaledWidth) / 2 + MARGIN;
-        auto offsetY      = static_cast<float>(MAX_BOARD_SIZE - scaledHeight) / 2 + MARGIN + PANE_HEIGHT;
+        this->offsetX        = static_cast<float>(MAX_BOARD_SIZE - scaledWidth) / 2 + MARGIN;
+        this->offsetY        = static_cast<float>(MAX_BOARD_SIZE - scaledHeight) / 2 + MARGIN + PANE_HEIGHT;
 
-        consoleLog("Board size: " + std::to_string(scaledWidth) + " x " + std::to_string(scaledHeight));
-        consoleLog("Board offset: " + std::to_string(offsetX) + ", " + std::to_string(offsetY));
-        consoleLog("Scaling factor: " + std::to_string(scalingFactor));
+        this->boardTransform = sf::Transform {};
+        this->boardTransform.translate(this->offsetX, this->offsetY)
+            .scale(this->scalingFactor, this->scalingFactor, 0, 0);
+    }
 
-        sf::Transform transform;
-        transform.translate(offsetX, offsetY).scale(scalingFactor, scalingFactor, 0, 0);
+    void operator()()
+    {
+        recalculateBoardPositioning();
 
         consoleLog("Starting event loop...");
         sf::Clock deltaClock;
@@ -137,19 +150,17 @@ public:
                 if (ImGui::BeginMenu("New Game"))
                 {
                     if (ImGui::MenuItem("Beginner (9x9)"))
-                    {
-                    }
+                        this->startNewGame(9, 9, 10);
                     if (ImGui::MenuItem("Intermediate (16x16)"))
-                    {
-                    }
+                        this->startNewGame(16, 16, 40);
                     if (ImGui::MenuItem("Expert (30x16)"))
-                    {
-                    }
+                        this->startNewGame(30, 16, 99);
 
                     ImGui::Separator();
 
                     if (ImGui::MenuItem("Custom..."))
                     {
+                        // TODO: Modal popup to configure game settings
                     }
 
                     ImGui::EndMenu();
@@ -166,7 +177,7 @@ public:
             else
                 this->window.clear(BACKGROUND_COLOR);
 
-            this->window.draw(gameBoard, transform);
+            this->window.draw(gameBoard, this->boardTransform);
             ImGui::SFML::Render(this->window);
 
             this->window.display();
