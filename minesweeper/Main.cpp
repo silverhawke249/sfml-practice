@@ -16,29 +16,29 @@
 // TODO: Add timer and counter
 // TODO: Store high scores
 
-constexpr uint32_t WINDOW_WIDTH {600};
-constexpr uint32_t WINDOW_HEIGHT {800};
-constexpr char const* WINDOW_TITLE {"Minesweeper!"};
+constexpr uint32_t MAX_BOARD_SIZE {600};
 constexpr uint32_t MARGIN {25};
+constexpr uint32_t PANE_HEIGHT {100};
+constexpr uint32_t WINDOW_WIDTH {MAX_BOARD_SIZE + 2 * MARGIN};
+constexpr uint32_t WINDOW_HEIGHT {MAX_BOARD_SIZE + 2 * MARGIN + PANE_HEIGHT};
+constexpr char const* WINDOW_TITLE {"Minesweeper!"};
 constexpr uint32_t BACKGROUND_COLOR {0x1B0345FF};
 
 class MainApp
 {
 private:
     sf::RenderWindow window;
-    uint32_t windowWidth;
-    uint32_t windowHeight;
 
     GameBoard gameBoard;
     bool lmbHeld {false};
 
 public:
-    MainApp(uint32_t windowWidth, uint32_t windowHeight, std::string_view windowTitle, uint32_t boardWidth = 16,
-            uint32_t boardHeight = 16, uint32_t mineCount = 40):
-        window(sf::VideoMode(windowWidth, windowHeight), windowTitle.data(), sf::Style::Default ^ sf::Style::Resize),
-        windowWidth(windowWidth), windowHeight(windowHeight), gameBoard(boardWidth, boardHeight, mineCount)
+    MainApp(uint32_t boardWidth = 16, uint32_t boardHeight = 16, uint32_t mineCount = 40):
+        window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Default ^ sf::Style::Resize),
+        gameBoard(boardWidth, boardHeight, mineCount)
     {
         consoleLog("Initializing app...");
+        this->window.setFramerateLimit(60);
         std::ignore = ImGui::SFML::Init(this->window);
     }
 
@@ -49,19 +49,16 @@ public:
 
     void operator()()
     {
-        auto boardMaxWidth             = this->windowWidth - 2 * MARGIN;
-        auto boardMaxHeight            = this->windowHeight - 2 * MARGIN;
-
         auto [boardWidth, boardHeight] = this->gameBoard.getBoardDimensions();
-        float scalingFactor {boardMaxWidth / static_cast<float>(boardWidth)};
-        if (boardHeight * scalingFactor > boardMaxHeight)
-            scalingFactor = boardMaxHeight / static_cast<float>(boardHeight);
+        float scalingFactor {MAX_BOARD_SIZE / static_cast<float>(boardWidth)};
+        if (boardHeight * scalingFactor > MAX_BOARD_SIZE)
+            scalingFactor = MAX_BOARD_SIZE / static_cast<float>(boardHeight);
 
         auto scaledWidth  = boardWidth * scalingFactor;
         auto scaledHeight = boardHeight * scalingFactor;
 
-        auto offsetX      = static_cast<float>(this->windowWidth - scaledWidth) / 2;
-        auto offsetY      = static_cast<float>(this->windowHeight - scaledHeight) / 2;
+        auto offsetX      = static_cast<float>(MAX_BOARD_SIZE - scaledWidth) / 2 + MARGIN;
+        auto offsetY      = static_cast<float>(MAX_BOARD_SIZE - scaledHeight) / 2 + MARGIN + PANE_HEIGHT;
 
         consoleLog("Board size: " + std::to_string(scaledWidth) + " x " + std::to_string(scaledHeight));
         consoleLog("Board offset: " + std::to_string(offsetX) + ", " + std::to_string(offsetY));
@@ -115,6 +112,7 @@ public:
                     this->gameBoard.clearTelegraph();
                     switch (this->gameBoard.getGameState())
                     {
+                    case GameState::GAME_NOT_STARTED:
                     case GameState::GAME_ONGOING:
                         boardX = (event.mouseButton.x - offsetX) / scalingFactor / TILE_SIZE;
                         boardY = (event.mouseButton.y - offsetY) / scalingFactor / TILE_SIZE;
@@ -132,7 +130,32 @@ public:
             }
 
             ImGui::SFML::Update(this->window, deltaClock.restart());
-            ImGui::ShowDemoWindow();
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("New Game"))
+                {
+                    if (ImGui::MenuItem("Beginner (9x9)"))
+                    {
+                    }
+                    if (ImGui::MenuItem("Intermediate (16x16)"))
+                    {
+                    }
+                    if (ImGui::MenuItem("Expert (30x16)"))
+                    {
+                    }
+
+                    ImGui::Separator();
+                    
+                    if (ImGui::MenuItem("Custom..."))
+                    {
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndMainMenuBar();
+            }
 
             this->window.clear(sf::Color(BACKGROUND_COLOR));
 
@@ -157,13 +180,13 @@ int main(int argc, char* argv[])
         auto mineCount = std::stoi(argv[3]);
         if (width > 0 and height > 0 and mineCount > 0)
         {
-            MainApp(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, width, height, mineCount)();
+            MainApp(width, height, mineCount)();
 
             return EXIT_SUCCESS;
         }
     }
 
-    MainApp(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE)();
+    MainApp()();
 
     return EXIT_SUCCESS;
 }
