@@ -292,8 +292,25 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
     case TileState::COVERED:
         if (mouseBtn == sf::Mouse::Button::Left)
         {
-            this->gameState = GameState::GAME_ONGOING;
             this->setBoardState(x, y, TileState::UNCOVERED);
+            // Losing on first turn is not allowed
+            if (this->gameState == GameState::GAME_NOT_STARTED and this->mineLocation.contains(this->lastClickedCoords))
+            {
+                consoleLog("Moving mine...");
+                this->mineLocation.erase(this->lastClickedCoords);
+                for (auto i: std::views::iota(0, this->numTiles))
+                {
+                    if (this->mineLocation.contains(this->deflatten(i)))
+                        continue;
+                    if (this->deflatten(i) == this->lastClickedCoords)
+                        continue;
+                    this->mineLocation.emplace(this->deflatten(i));
+                    break;
+                }
+                for (int i = 0; i < this->numTiles; ++i)
+                    this->mineCounts[i] = this->getMineNumber(this->deflatten(i));
+            }
+            this->gameState = GameState::GAME_ONGOING;
         }
         else
             this->setBoardState(x, y, TileState::FLAGGED);
@@ -332,22 +349,6 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
         else
             this->setBoardState(x, y, TileState::COVERED);
         break;
-    }
-
-    // Losing on first turn is not allowed
-    if (this->gameState == GameState::GAME_NOT_STARTED and this->mineLocation.contains(this->lastClickedCoords))
-    {
-        consoleLog("Moving mine...");
-        this->mineLocation.erase(this->lastClickedCoords);
-        for (auto i: std::views::iota(0, this->numTiles))
-        {
-            if (this->mineLocation.contains(this->deflatten(i)))
-                continue;
-            if (this->deflatten(i) == this->lastClickedCoords)
-                continue;
-            this->mineLocation.emplace(this->deflatten(i));
-            break;
-        }
     }
 
     this->floodFill(x, y);
