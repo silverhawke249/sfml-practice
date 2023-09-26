@@ -8,7 +8,8 @@ function(embed_resource TARGET INPUT_FILE)
         OUTPUT gen/${TARGET}-embedded.S
         CONTENT "    .global ${SYMBOL_NAME}_Begin
     .global ${SYMBOL_NAME}_End
-    .section        .rodata
+    .section .note.GNU-stack,\"\",@progbits
+    .rodata
 ${SYMBOL_NAME}_Begin:
     .align 4
     .incbin \"${INPUT_FILE}\"
