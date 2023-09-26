@@ -38,6 +38,21 @@ private:
     float offsetY;
     sf::Transform boardTransform;
 
+    inline float relativeToBoard(int32_t pos, float offset) const
+    {
+        return (pos - offset) / this->scalingFactor / TILE_SIZE;
+    }
+
+    inline float relativeToBoardX(int32_t pos) const
+    {
+        return this->relativeToBoard(pos, this->offsetX);
+    }
+
+    inline float relativeToBoardY(int32_t pos) const
+    {
+        return this->relativeToBoard(pos, this->offsetY);
+    }
+
 public:
     MainApp(uint32_t boardWidth = 16, uint32_t boardHeight = 16, uint32_t mineCount = 40):
         window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), WINDOW_TITLE, sf::Style::Default ^ sf::Style::Resize),
@@ -106,8 +121,8 @@ public:
                     if (event.mouseButton.button == sf::Mouse::Button::Left)
                     {
                         this->lmbHeld = true;
-                        boardX        = (event.mouseButton.x - offsetX) / scalingFactor / TILE_SIZE;
-                        boardY        = (event.mouseButton.y - offsetY) / scalingFactor / TILE_SIZE;
+                        boardX        = this->relativeToBoardX(event.mouseButton.x);
+                        boardY        = this->relativeToBoardY(event.mouseButton.y);
                         this->gameBoard.telegraph(boardX, boardY);
                     }
                     break;
@@ -116,8 +131,8 @@ public:
                         continue;
                     if (this->lmbHeld)
                     {
-                        boardX = (event.mouseMove.x - offsetX) / scalingFactor / TILE_SIZE;
-                        boardY = (event.mouseMove.y - offsetY) / scalingFactor / TILE_SIZE;
+                        boardX = this->relativeToBoardX(event.mouseMove.x);
+                        boardY = this->relativeToBoardY(event.mouseMove.y);
                         this->gameBoard.telegraph(boardX, boardY);
                     }
                     break;
@@ -130,8 +145,8 @@ public:
                     {
                     case GameState::GAME_NOT_STARTED:
                     case GameState::GAME_ONGOING:
-                        boardX = (event.mouseButton.x - offsetX) / scalingFactor / TILE_SIZE;
-                        boardY = (event.mouseButton.y - offsetY) / scalingFactor / TILE_SIZE;
+                        boardX = this->relativeToBoardX(event.mouseButton.x);
+                        boardY = this->relativeToBoardY(event.mouseButton.y);
                         this->gameBoard.interact(boardX, boardY, event.mouseButton.button);
                         break;
                     case GameState::GAME_WON:
@@ -177,8 +192,8 @@ public:
             }
 
             auto mousePos = sf::Mouse::getPosition(this->window);
-            auto mX       = (mousePos.x - offsetX) / scalingFactor / TILE_SIZE;
-            auto mY       = (mousePos.y - offsetY) / scalingFactor / TILE_SIZE;
+            auto mX       = this->relativeToBoardX(mousePos.x);
+            auto mY       = this->relativeToBoardY(mousePos.y);
             if (this->debugAssist and this->gameBoard.hasMine(mX, mY))
                 this->window.clear(ALERT_COLOR);
             else
