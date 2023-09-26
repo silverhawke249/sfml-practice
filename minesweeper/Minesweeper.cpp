@@ -337,6 +337,7 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
     // Losing on first turn is not allowed
     if (this->gameState == GameState::GAME_NOT_STARTED and this->mineLocation.contains(this->lastClickedCoords))
     {
+        consoleLog("Moving mine...");
         this->mineLocation.erase(this->lastClickedCoords);
         for (auto i: std::views::iota(0, this->numTiles))
         {

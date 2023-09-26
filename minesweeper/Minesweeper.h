@@ -44,7 +44,9 @@ enum class SpriteType : uint8_t
 
 inline void consoleLog(std::string_view message)
 {
+#ifdef DEBUG
     std::cout << message << std::endl;
+#endif
 }
 
 class TextureManager
@@ -159,4 +161,16 @@ public:
     void interact(float x, float y, sf::Mouse::Button mouseBtn);
     void telegraph(float x, float y);
     void clearTelegraph();
+
+    bool hasMine(float x, float y)
+    {
+#ifndef DEBUG
+        return false;
+
+#endif
+        if (this->isOutOfBounds(x, y))
+            return false;
+
+        return this->mineLocation.contains({x, y});
+    }
 };

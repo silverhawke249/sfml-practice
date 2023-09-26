@@ -22,7 +22,8 @@ constexpr uint32_t PANE_HEIGHT {100};
 constexpr uint32_t WINDOW_WIDTH {MAX_BOARD_SIZE + 2 * MARGIN};
 constexpr uint32_t WINDOW_HEIGHT {MAX_BOARD_SIZE + 2 * MARGIN + PANE_HEIGHT};
 constexpr char const* WINDOW_TITLE {"Minesweeper!"};
-constexpr uint32_t BACKGROUND_COLOR {0x1B0345FF};
+sf::Color const BACKGROUND_COLOR {0x1B0345FF};
+sf::Color const ALERT_COLOR {0x4A0202FF};
 
 class MainApp
 {
@@ -146,7 +147,7 @@ public:
                     }
 
                     ImGui::Separator();
-                    
+
                     if (ImGui::MenuItem("Custom..."))
                     {
                     }
@@ -157,7 +158,13 @@ public:
                 ImGui::EndMainMenuBar();
             }
 
-            this->window.clear(sf::Color(BACKGROUND_COLOR));
+            auto mousePos = sf::Mouse::getPosition(this->window);
+            auto mX       = (mousePos.x - offsetX) / scalingFactor / TILE_SIZE;
+            auto mY       = (mousePos.y - offsetY) / scalingFactor / TILE_SIZE;
+            if (this->gameBoard.hasMine(mX, mY))
+                this->window.clear(ALERT_COLOR);
+            else
+                this->window.clear(BACKGROUND_COLOR);
 
             this->window.draw(gameBoard, transform);
             ImGui::SFML::Render(this->window);
