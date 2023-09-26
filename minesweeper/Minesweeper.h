@@ -18,6 +18,7 @@ enum class TileState : uint8_t
 
 enum class GameState : uint8_t
 {
+    GAME_NOT_STARTED,
     GAME_ONGOING,
     GAME_WON,
     GAME_LOST,

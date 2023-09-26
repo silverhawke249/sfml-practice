@@ -159,6 +159,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
             case TileState::COVERED:
                 switch (this->gameState)
                 {
+                case GameState::GAME_NOT_STARTED:
                 case GameState::GAME_ONGOING:
                     if (this->telegraphedTile.contains({x, y}))
                         sprite = this->textureMgr.getSprite(SpriteType::UNCOVERED_0);
@@ -219,6 +220,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
             case TileState::FLAGGED:
                 switch (this->gameState)
                 {
+                case GameState::GAME_NOT_STARTED:
                 case GameState::GAME_ONGOING:
                 case GameState::GAME_WON:
                     sprite = this->textureMgr.getSprite(SpriteType::FLAGGED_TILE);
@@ -251,7 +253,7 @@ void GameBoard::initialize(int32_t boardWidth, int32_t boardHeight, int32_t mine
     this->boardHeight = boardHeight;
     this->mineCount   = mineCount;
     this->numTiles    = boardWidth * boardHeight;
-    this->gameState   = GameState::GAME_ONGOING;
+    this->gameState   = GameState::GAME_NOT_STARTED;
     this->mineLocation.clear();
     this->mineCounts.clear();
     this->boardState.clear();
@@ -289,7 +291,10 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
     {
     case TileState::COVERED:
         if (mouseBtn == sf::Mouse::Button::Left)
+        {
+            this->gameState = GameState::GAME_ONGOING;
             this->setBoardState(x, y, TileState::UNCOVERED);
+        }
         else
             this->setBoardState(x, y, TileState::FLAGGED);
         break;
@@ -330,28 +335,17 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
     }
 
     // Losing on first turn is not allowed
-    if (this->mineLocation.contains(this->lastClickedCoords))
+    if (this->gameState == GameState::GAME_NOT_STARTED and this->mineLocation.contains(this->lastClickedCoords))
     {
-        int32_t count = 0;
-        for (auto bs: this->boardState)
+        this->mineLocation.erase(this->lastClickedCoords);
+        for (auto i: std::views::iota(0, this->numTiles))
         {
-            count += bs == TileState::UNCOVERED;
-            if (count > 1)
-                break;
-        }
-
-        if (count == 1)
-        {
-            this->mineLocation.erase(this->lastClickedCoords);
-            for (auto i: std::views::iota(0, this->numTiles))
-            {
-                if (this->mineLocation.contains(this->deflatten(i)))
-                    continue;
-                if (this->deflatten(i) == this->lastClickedCoords)
-                    continue;
-                this->mineLocation.emplace(this->deflatten(i));
-                break;
-            }
+            if (this->mineLocation.contains(this->deflatten(i)))
+                continue;
+            if (this->deflatten(i) == this->lastClickedCoords)
+                continue;
+            this->mineLocation.emplace(this->deflatten(i));
+            break;
         }
     }
 
