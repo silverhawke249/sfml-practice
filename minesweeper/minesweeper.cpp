@@ -92,7 +92,7 @@ int32_t GameBoard::countFlags(int32_t x, int32_t y) const
 
 bool GameBoard::checkWinCon() const
 {
-    int32_t count = 0;
+    uint32_t count = 0;
     for (auto s: this->boardState)
         count += s == TileState::COVERED or s == TileState::FLAGGED;
 
