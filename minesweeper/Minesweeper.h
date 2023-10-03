@@ -9,6 +9,9 @@
 
 constexpr uint32_t TILE_SIZE {64};
 
+constexpr int32_t DIGIT_WIDTH {64};
+constexpr int32_t DIGIT_HEIGHT {128};
+
 enum class TileState : uint8_t
 {
     COVERED,
@@ -42,6 +45,21 @@ enum class SpriteType : uint8_t
     UNCOVERED_8,
 };
 
+enum class NumberValue : uint8_t
+{
+    NUM_0,
+    NUM_1,
+    NUM_2,
+    NUM_3,
+    NUM_4,
+    NUM_5,
+    NUM_6,
+    NUM_7,
+    NUM_8,
+    NUM_9,
+    PERIOD,
+};
+
 inline void consoleLog(std::string_view message)
 {
 #ifdef DEBUG
@@ -53,6 +71,7 @@ class TextureManager
 {
 private:
     sf::Texture tileset;
+    sf::Texture numbers;
 
 public:
     TextureManager()
@@ -65,9 +84,11 @@ public:
     {
         consoleLog("Loading tileset...");
         this->tileset.loadFromMemory(minesweeper_tileset.data(), minesweeper_tileset.size());
+        this->numbers.loadFromMemory(minesweeper_numbers.data(), minesweeper_numbers.size());
     }
 
     sf::Sprite getSprite(SpriteType spriteType) const;
+    sf::Sprite getSprite(NumberValue digit) const;
 };
 
 class GameBoard : public sf::Drawable

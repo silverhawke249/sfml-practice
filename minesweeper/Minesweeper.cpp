@@ -57,6 +57,49 @@ sf::Sprite TextureManager::getSprite(SpriteType spriteType) const
     return sprite;
 }
 
+sf::Sprite TextureManager::getSprite(NumberValue digit) const
+{
+    sf::Sprite sprite {this->numbers};
+    switch (digit)
+    {
+    case NumberValue::NUM_0:
+        sprite.setTextureRect({0, 0, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_1:
+        sprite.setTextureRect({1 * DIGIT_WIDTH, 0, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_2:
+        sprite.setTextureRect({2 * DIGIT_WIDTH, 0, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_3:
+        sprite.setTextureRect({3 * DIGIT_WIDTH, 0, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_4:
+        sprite.setTextureRect({4 * DIGIT_WIDTH, 0, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_5:
+        sprite.setTextureRect({0, 1 * DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_6:
+        sprite.setTextureRect({1 * DIGIT_WIDTH, 1 * DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_7:
+        sprite.setTextureRect({2 * DIGIT_WIDTH, 1 * DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_8:
+        sprite.setTextureRect({3 * DIGIT_WIDTH, 1 * DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::NUM_9:
+        sprite.setTextureRect({4 * DIGIT_WIDTH, 1 * DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    case NumberValue::PERIOD:
+        sprite.setTextureRect({0, 2 * DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT});
+        break;
+    }
+
+    return sprite;
+}
+
 int32_t GameBoard::getMineNumber(std::tuple<int32_t, int32_t> coords) const
 {
     auto [x, y]   = coords;
