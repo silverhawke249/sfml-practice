@@ -16,10 +16,10 @@
 // TODO: Add timer and counter
 // TODO: Store high scores
 
-constexpr uint32_t MAX_BOARD_SIZE {600};
+constexpr uint32_t BASE_SIZE {600};
 constexpr uint32_t MARGIN {25};
-constexpr uint32_t WINDOW_WIDTH {MAX_BOARD_SIZE + 2 * MARGIN};
-constexpr uint32_t WINDOW_HEIGHT {MAX_BOARD_SIZE + 2 * MARGIN};
+constexpr uint32_t WINDOW_WIDTH {BASE_SIZE + 2 * MARGIN};
+constexpr uint32_t WINDOW_HEIGHT {BASE_SIZE + 2 * MARGIN};
 constexpr char const* WINDOW_TITLE {"Minesweeper!"};
 sf::Color const BACKGROUND_COLOR {0x1B0345FF};
 sf::Color const ALERT_COLOR {0x4A0202FF};
@@ -32,24 +32,20 @@ private:
     GameBoard gameBoard;
     bool debugAssist {false};
     bool lmbHeld {false};
-    float scalingFactor;
+    float scaleX {1.0};
+    float scaleY {1.0};
     float offsetX;
     float offsetY;
     sf::Transform boardTransform;
 
-    inline float relativeToBoard(int32_t pos, float offset) const
-    {
-        return (pos - offset) / this->scalingFactor / TILE_SIZE;
-    }
-
     inline float relativeToBoardX(int32_t pos) const
     {
-        return this->relativeToBoard(pos, this->offsetX);
+        return (pos - this->offsetX / this->scaleX) / TILE_SCALE / TILE_SIZE;
     }
 
     inline float relativeToBoardY(int32_t pos) const
     {
-        return this->relativeToBoard(pos, this->offsetY);
+        return (pos - this->offsetY / this->scaleY) / TILE_SCALE / TILE_SIZE;
     }
 
 public:
@@ -71,30 +67,26 @@ public:
     {
         // TODO: Modal popup to confirm if a game is ongoing
         this->gameBoard.initialize(boardWidth, boardHeight, mineCount);
-        this->recalculateBoardPositioning();
+        this->resizeWindow();
     }
 
-    void recalculateBoardPositioning()
+    void resizeWindow()
     {
         auto [boardWidth, boardHeight] = this->gameBoard.getBoardDimensions();
-        this->scalingFactor            = MAX_BOARD_SIZE / static_cast<float>(boardWidth);
-        if (boardHeight * this->scalingFactor > MAX_BOARD_SIZE)
-            this->scalingFactor = MAX_BOARD_SIZE / static_cast<float>(boardHeight);
+        this->window.setSize({boardWidth + 2 * MARGIN, boardHeight + 2 * MARGIN});
 
-        auto scaledWidth     = boardWidth * this->scalingFactor;
-        auto scaledHeight    = boardHeight * this->scalingFactor;
-
-        this->offsetX        = static_cast<float>(MAX_BOARD_SIZE - scaledWidth) / 2 + MARGIN;
-        this->offsetY        = static_cast<float>(MAX_BOARD_SIZE - scaledHeight) / 2 + MARGIN;
+        this->scaleX         = static_cast<float>(WINDOW_WIDTH) / (boardWidth + 2 * MARGIN);
+        this->scaleY         = static_cast<float>(WINDOW_HEIGHT) / (boardHeight + 2 * MARGIN);
+        this->offsetX        = this->scaleX * MARGIN;
+        this->offsetY        = this->scaleY * (MARGIN + DIGIT_HEIGHT);
 
         this->boardTransform = sf::Transform {};
-        this->boardTransform.translate(this->offsetX, this->offsetY)
-            .scale(this->scalingFactor, this->scalingFactor, 0, 0);
+        this->boardTransform.scale({this->scaleX, this->scaleY}).translate(MARGIN, MARGIN);
     }
 
     void operator()()
     {
-        recalculateBoardPositioning();
+        resizeWindow();
 
         consoleLog("Starting event loop...");
         sf::Clock deltaClock;
@@ -107,7 +99,7 @@ public:
             {
                 ImGui::SFML::ProcessEvent(this->window, event);
                 auto imguiMouseCap = ImGui::GetIO().WantCaptureMouse;
-                auto imguiKeyCap = ImGui::GetIO().WantCaptureKeyboard;
+                auto imguiKeyCap   = ImGui::GetIO().WantCaptureKeyboard;
 
                 switch (event.type)
                 {

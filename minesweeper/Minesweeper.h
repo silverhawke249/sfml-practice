@@ -168,7 +168,7 @@ public:
         this->initialize(this->boardWidth, this->boardHeight, this->mineCount);
     }
 
-    inline std::tuple<int32_t, int32_t> getBoardDimensions() const
+    inline std::tuple<uint32_t, uint32_t> getBoardDimensions() const
     {
         return std::make_tuple(this->boardWidth * TILE_SIZE * TILE_SCALE,
                                this->boardHeight * TILE_SIZE * TILE_SCALE + DIGIT_HEIGHT);
