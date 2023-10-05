@@ -279,7 +279,10 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
             }
 
             sf::Transform translate;
-            translate.translate(x * TILE_SIZE, y * TILE_SIZE);
+            // Transform chains are right to left!!
+            translate.translate({0, DIGIT_HEIGHT})
+                .scale({TILE_SCALE, TILE_SCALE})
+                .translate(x * TILE_SIZE, y * TILE_SIZE);
             states.transform = baseTransform * translate;
 
             target.draw(sprite, states);

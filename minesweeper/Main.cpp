@@ -18,9 +18,8 @@
 
 constexpr uint32_t MAX_BOARD_SIZE {600};
 constexpr uint32_t MARGIN {25};
-constexpr uint32_t PANE_HEIGHT {100};
 constexpr uint32_t WINDOW_WIDTH {MAX_BOARD_SIZE + 2 * MARGIN};
-constexpr uint32_t WINDOW_HEIGHT {MAX_BOARD_SIZE + 2 * MARGIN + PANE_HEIGHT};
+constexpr uint32_t WINDOW_HEIGHT {MAX_BOARD_SIZE + 2 * MARGIN};
 constexpr char const* WINDOW_TITLE {"Minesweeper!"};
 sf::Color const BACKGROUND_COLOR {0x1B0345FF};
 sf::Color const ALERT_COLOR {0x4A0202FF};
@@ -86,7 +85,7 @@ public:
         auto scaledHeight    = boardHeight * this->scalingFactor;
 
         this->offsetX        = static_cast<float>(MAX_BOARD_SIZE - scaledWidth) / 2 + MARGIN;
-        this->offsetY        = static_cast<float>(MAX_BOARD_SIZE - scaledHeight) / 2 + MARGIN + PANE_HEIGHT;
+        this->offsetY        = static_cast<float>(MAX_BOARD_SIZE - scaledHeight) / 2 + MARGIN;
 
         this->boardTransform = sf::Transform {};
         this->boardTransform.translate(this->offsetX, this->offsetY)

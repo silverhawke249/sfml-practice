@@ -8,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 
 constexpr uint32_t TILE_SIZE {64};
+constexpr float TILE_SCALE {0.5};
 
 constexpr int32_t DIGIT_WIDTH {64};
 constexpr int32_t DIGIT_HEIGHT {128};
@@ -169,7 +170,8 @@ public:
 
     inline std::tuple<int32_t, int32_t> getBoardDimensions() const
     {
-        return std::make_tuple(this->boardWidth * TILE_SIZE, this->boardHeight * TILE_SIZE);
+        return std::make_tuple(this->boardWidth * TILE_SIZE * TILE_SCALE,
+                               this->boardHeight * TILE_SIZE * TILE_SCALE + DIGIT_HEIGHT);
     }
 
     inline auto getGameState() const
