@@ -193,6 +193,30 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
     // Copy base transform from render state
     sf::Transform baseTransform {states.transform};
 
+    // Draw text
+    int32_t numMineRemaining = this->mineCount;
+    for (auto ts: this->boardState)
+        numMineRemaining -= ts == TileState::FLAGGED;
+
+    if (this->gameState == GameState::GAME_WON or numMineRemaining < 0)
+        numMineRemaining = 0;
+
+    sf::Transform numberTransform {};
+    numberTransform.translate({3 * DIGIT_WIDTH, 0});
+    for ([[maybe_unused]] auto i: std::views::iota(0, 3))
+    {
+        auto numVal = NumberValue(numMineRemaining % 10);
+        sf::Sprite sprite {this->textureMgr.getSprite(numVal)};
+
+        numberTransform.translate({-DIGIT_WIDTH, 0});
+        states.transform = baseTransform * numberTransform;
+
+        target.draw(sprite, states);
+
+        numMineRemaining /= 10;
+    }
+
+    // Draw board
     for (auto y: std::views::iota(0, this->boardHeight))
         for (auto x: std::views::iota(0, this->boardWidth))
         {
