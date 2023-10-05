@@ -21,7 +21,7 @@ constexpr uint32_t MARGIN {25};
 constexpr uint32_t WINDOW_WIDTH {BASE_SIZE + 2 * MARGIN};
 constexpr uint32_t WINDOW_HEIGHT {BASE_SIZE + 2 * MARGIN};
 constexpr char const* WINDOW_TITLE {"Minesweeper!"};
-sf::Color const BACKGROUND_COLOR {0x1B0345FF};
+sf::Color const BACKGROUND_COLOR {0xE0E0E0FF};
 sf::Color const ALERT_COLOR {0x4A0202FF};
 
 class MainApp
@@ -73,6 +73,14 @@ public:
     void resizeWindow()
     {
         auto [boardWidth, boardHeight] = this->gameBoard.getBoardDimensions();
+        // Okay so this is really dumb. When you resize the window, everything
+        //   drawn assumes that the window has its original window size! So
+        //   things get stretched around and stuff... you're gonna need to
+        //   transform things drawn to counter that scaling.
+        // ... HOWEVER! Mouse input position are unaffected, so be careful
+        //   with that lmao
+        // If you can, don't resize the window -- keep it the same size. Create
+        //   a view instead and tinker around with that.
         this->window.setSize({boardWidth + 2 * MARGIN, boardHeight + 2 * MARGIN});
 
         this->scaleX         = static_cast<float>(WINDOW_WIDTH) / (boardWidth + 2 * MARGIN);
