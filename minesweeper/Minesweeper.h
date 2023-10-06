@@ -9,8 +9,8 @@
 
 constexpr uint32_t TILE_SIZE {64};
 
-constexpr int32_t DIGIT_WIDTH {64};
-constexpr int32_t DIGIT_HEIGHT {128};
+constexpr int32_t DIGIT_WIDTH {47};
+constexpr int32_t DIGIT_HEIGHT {66};
 constexpr float MS_SCALE {0.5};
 
 enum class TileState : uint8_t
