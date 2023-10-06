@@ -18,8 +18,9 @@
 
 constexpr uint32_t BASE_SIZE {600};
 constexpr uint32_t MARGIN {25};
-constexpr uint32_t WINDOW_WIDTH {BASE_SIZE + 2 * MARGIN};
-constexpr uint32_t WINDOW_HEIGHT {BASE_SIZE + 2 * MARGIN};
+constexpr uint32_t WINDOW_WIDTH {BASE_SIZE};
+constexpr uint32_t WINDOW_HEIGHT {BASE_SIZE};
+constexpr float UI_SCALE {0.5};
 constexpr char const* WINDOW_TITLE {"Minesweeper!"};
 sf::Color const BACKGROUND_COLOR {0xE0E0E0FF};
 sf::Color const ALERT_COLOR {0x4A0202FF};
@@ -40,12 +41,12 @@ private:
 
     inline float relativeToBoardX(int32_t pos) const
     {
-        return (pos - this->offsetX / this->scaleX) / TILE_SCALE / TILE_SIZE;
+        return (pos - this->offsetX) / TILE_SIZE / UI_SCALE;
     }
 
     inline float relativeToBoardY(int32_t pos) const
     {
-        return (pos - this->offsetY / this->scaleY) / TILE_SCALE / TILE_SIZE;
+        return (pos - this->offsetY) / TILE_SIZE / UI_SCALE;
     }
 
 public:
@@ -81,12 +82,13 @@ public:
         //   with that lmao
         // If you can, don't resize the window -- keep it the same size. Create
         //   a view instead and tinker around with that.
-        this->window.setSize({boardWidth + 2 * MARGIN, boardHeight + 2 * MARGIN});
+        this->window.setSize({static_cast<uint32_t>(UI_SCALE * (boardWidth + 2 * MARGIN)),
+                              static_cast<uint32_t>(UI_SCALE * (boardHeight + 2 * MARGIN))});
 
         this->scaleX         = static_cast<float>(WINDOW_WIDTH) / (boardWidth + 2 * MARGIN);
         this->scaleY         = static_cast<float>(WINDOW_HEIGHT) / (boardHeight + 2 * MARGIN);
-        this->offsetX        = this->scaleX * MARGIN;
-        this->offsetY        = this->scaleY * (MARGIN + DIGIT_HEIGHT);
+        this->offsetX        = UI_SCALE * (MARGIN);
+        this->offsetY        = UI_SCALE * (MARGIN + DIGIT_HEIGHT);
 
         this->boardTransform = sf::Transform {};
         this->boardTransform.scale({this->scaleX, this->scaleY}).translate(MARGIN, MARGIN);
