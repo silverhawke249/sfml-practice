@@ -193,7 +193,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
     // Copy base transform from render state
     sf::Transform baseTransform {states.transform};
 
-    // Draw text
+    // Draw text -- remaining mine
     int32_t numMineRemaining = this->mineCount;
     for (auto ts: this->boardState)
         numMineRemaining -= ts == TileState::FLAGGED;
@@ -214,6 +214,56 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         target.draw(sprite, states);
 
         numMineRemaining /= 10;
+    }
+
+    // Draw txt -- timer
+    int32_t elapsedTime;
+    switch (this->gameState)
+    {
+    case GameState::GAME_NOT_STARTED:
+        elapsedTime = 0;
+        break;
+    case GameState::GAME_ONGOING:
+        elapsedTime = this->gameClock.getElapsedTime().asMilliseconds();
+        break;
+    case GameState::GAME_WON:
+    case GameState::GAME_LOST:
+        elapsedTime = this->finishTime.asMilliseconds();
+        break;
+    }
+
+    numberTransform = sf::Transform {};
+    numberTransform.translate({static_cast<float>(TILE_SIZE) * this->boardWidth, DIGIT_HEIGHT})
+        .scale({MS_SCALE, MS_SCALE})
+        .translate({-DIGIT_WIDTH, -DIGIT_HEIGHT});
+    for ([[maybe_unused]] auto i: std::views::iota(0, 3))
+    {
+        auto numVal = NumberValue(elapsedTime % 10);
+        sf::Sprite sprite {this->textureMgr.getSprite(numVal)};
+
+        numberTransform.translate({-DIGIT_WIDTH, 0});
+        states.transform = baseTransform * numberTransform;
+
+        target.draw(sprite, states);
+
+        elapsedTime /= 10;
+    }
+
+    numberTransform = sf::Transform {};
+    numberTransform.translate({-DIGIT_WIDTH, 0})
+        .translate({-3 * DIGIT_WIDTH * MS_SCALE, 0})
+        .translate({static_cast<float>(TILE_SIZE) * this->boardWidth, 0});
+    for ([[maybe_unused]] auto i: std::views::iota(0, 3))
+    {
+        auto numVal = NumberValue(elapsedTime % 10);
+        sf::Sprite sprite {this->textureMgr.getSprite(numVal)};
+
+        numberTransform.translate({-DIGIT_WIDTH, 0});
+        states.transform = baseTransform * numberTransform;
+
+        target.draw(sprite, states);
+
+        elapsedTime /= 10;
     }
 
     // Draw board
@@ -304,9 +354,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
             sf::Transform translate;
             // Transform chains are right to left!!
-            translate.translate({0, DIGIT_HEIGHT})
-                .scale({TILE_SCALE, TILE_SCALE})
-                .translate(x * TILE_SIZE, y * TILE_SIZE);
+            translate.translate({0, DIGIT_HEIGHT}).translate(x * TILE_SIZE, y * TILE_SIZE);
             states.transform = baseTransform * translate;
 
             target.draw(sprite, states);

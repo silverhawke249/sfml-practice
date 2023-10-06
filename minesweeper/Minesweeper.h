@@ -8,10 +8,10 @@
 #include <SFML/Graphics.hpp>
 
 constexpr uint32_t TILE_SIZE {64};
-constexpr float TILE_SCALE {0.5};
 
 constexpr int32_t DIGIT_WIDTH {64};
 constexpr int32_t DIGIT_HEIGHT {128};
+constexpr float MS_SCALE {0.5};
 
 enum class TileState : uint8_t
 {
@@ -98,11 +98,14 @@ private:
     int32_t boardWidth;
     int32_t boardHeight;
     int32_t mineCount;
+    int32_t numTiles;
 
     TextureManager textureMgr;
 
-    int32_t numTiles;
     GameState gameState;
+    sf::Clock gameClock;
+    sf::Time finishTime;
+
     std::set<std::tuple<int32_t, int32_t>> mineLocation;
     std::vector<int32_t> mineCounts;
     std::vector<TileState> boardState;
@@ -170,8 +173,8 @@ public:
 
     inline std::tuple<uint32_t, uint32_t> getBoardDimensions() const
     {
-        return std::make_tuple(this->boardWidth * TILE_SIZE * TILE_SCALE,
-                               this->boardHeight * TILE_SIZE * TILE_SCALE + DIGIT_HEIGHT);
+        return std::make_tuple(this->boardWidth * TILE_SIZE,
+                               this->boardHeight * TILE_SIZE + DIGIT_HEIGHT);
     }
 
     inline auto getGameState() const
