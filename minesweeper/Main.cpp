@@ -31,12 +31,16 @@ private:
     sf::RenderWindow window;
 
     GameBoard gameBoard;
+    bool firstRun {true};
     bool debugAssist {false};
     bool lmbHeld {false};
+
     float scaleX {1.0};
     float scaleY {1.0};
     float offsetX;
     float offsetY;
+    float menuBarHeight {0.0};
+
     sf::Transform boardTransform;
 
     inline float relativeToBoardX(int32_t pos) const
@@ -83,21 +87,19 @@ public:
         // If you can, don't resize the window -- keep it the same size. Create
         //   a view instead and tinker around with that.
         this->window.setSize({static_cast<uint32_t>(UI_SCALE * (boardWidth + 2 * MARGIN)),
-                              static_cast<uint32_t>(UI_SCALE * (boardHeight + 2 * MARGIN))});
+                              static_cast<uint32_t>(UI_SCALE * (boardHeight + 2 * MARGIN + this->menuBarHeight))});
 
         this->scaleX         = static_cast<float>(WINDOW_WIDTH) / (boardWidth + 2 * MARGIN);
-        this->scaleY         = static_cast<float>(WINDOW_HEIGHT) / (boardHeight + 2 * MARGIN);
+        this->scaleY         = static_cast<float>(WINDOW_HEIGHT) / (boardHeight + 2 * MARGIN + this->menuBarHeight);
         this->offsetX        = UI_SCALE * (MARGIN);
-        this->offsetY        = UI_SCALE * (MARGIN + DIGIT_HEIGHT);
+        this->offsetY        = UI_SCALE * (MARGIN + DIGIT_HEIGHT + this->menuBarHeight);
 
         this->boardTransform = sf::Transform {};
-        this->boardTransform.scale({this->scaleX, this->scaleY}).translate(MARGIN, MARGIN);
+        this->boardTransform.scale({this->scaleX, this->scaleY}).translate(MARGIN, MARGIN + this->menuBarHeight);
     }
 
     void operator()()
     {
-        resizeWindow();
-
         consoleLog("Starting event loop...");
         sf::Clock deltaClock;
         sf::Event event;
@@ -170,6 +172,8 @@ public:
 
             if (ImGui::BeginMainMenuBar())
             {
+                this->menuBarHeight = ImGui::GetWindowSize().y;
+
                 if (ImGui::BeginMenu("New Game"))
                 {
                     if (ImGui::MenuItem("Beginner (9x9)"))
@@ -190,6 +194,12 @@ public:
                 }
 
                 ImGui::EndMainMenuBar();
+            }
+
+            if (this->firstRun)
+            {
+                this->firstRun = false;
+                resizeWindow();
             }
 
             auto mousePos = sf::Mouse::getPosition(this->window);
