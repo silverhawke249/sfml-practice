@@ -103,6 +103,7 @@ private:
     TextureManager textureMgr;
 
     GameState gameState;
+    bool clockStarted;
     sf::Clock gameClock;
     sf::Time finishTime;
 

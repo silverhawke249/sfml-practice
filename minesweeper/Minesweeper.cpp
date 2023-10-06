@@ -221,8 +221,6 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
     switch (this->gameState)
     {
     case GameState::GAME_NOT_STARTED:
-        elapsedTime = 0;
-        break;
     case GameState::GAME_ONGOING:
         elapsedTime = this->gameClock.getElapsedTime().asMilliseconds();
         break;
@@ -231,6 +229,8 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         elapsedTime = this->finishTime.asMilliseconds();
         break;
     }
+    if (!this->clockStarted)
+        elapsedTime = 0;
 
     numberTransform = sf::Transform {};
     numberTransform.translate({static_cast<float>(TILE_SIZE) * this->boardWidth, DIGIT_HEIGHT})
@@ -367,11 +367,12 @@ void GameBoard::initialize(int32_t boardWidth, int32_t boardHeight, int32_t mine
     consoleLog("Board width = " + std::to_string(boardWidth));
     consoleLog("Board height = " + std::to_string(boardHeight));
     consoleLog("Mine count = " + std::to_string(mineCount));
-    this->boardWidth  = boardWidth;
-    this->boardHeight = boardHeight;
-    this->mineCount   = mineCount;
-    this->numTiles    = boardWidth * boardHeight;
-    this->gameState   = GameState::GAME_NOT_STARTED;
+    this->boardWidth   = boardWidth;
+    this->boardHeight  = boardHeight;
+    this->mineCount    = mineCount;
+    this->numTiles     = boardWidth * boardHeight;
+    this->gameState    = GameState::GAME_NOT_STARTED;
+    this->clockStarted = false;
     this->mineLocation.clear();
     this->mineCounts.clear();
     this->boardState.clear();
@@ -408,6 +409,12 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
     switch (this->getBoardState(x, y))
     {
     case TileState::COVERED:
+        if (!this->clockStarted)
+        {
+            this->gameClock.restart();
+            this->clockStarted = true;
+        }
+
         if (mouseBtn == sf::Mouse::Button::Left)
         {
             this->setBoardState(x, y, TileState::UNCOVERED);
@@ -472,9 +479,15 @@ void GameBoard::interact(float x, float y, sf::Mouse::Button mouseBtn)
     this->floodFill(x, y);
 
     if (this->checkLoseCon())
-        this->gameState = GameState::GAME_LOST;
+    {
+        this->gameState  = GameState::GAME_LOST;
+        this->finishTime = this->gameClock.getElapsedTime();
+    }
     else if (this->checkWinCon())
-        this->gameState = GameState::GAME_WON;
+    {
+        this->gameState  = GameState::GAME_WON;
+        this->finishTime = this->gameClock.getElapsedTime();
+    }
 }
 
 void GameBoard::telegraph(float x, float y)
