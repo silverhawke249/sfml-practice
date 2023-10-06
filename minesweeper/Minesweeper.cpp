@@ -216,7 +216,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         numMineRemaining /= 10;
     }
 
-    // Draw txt -- timer
+    // Draw text -- timer
     int32_t elapsedTime;
     switch (this->gameState)
     {
@@ -235,7 +235,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
     numberTransform = sf::Transform {};
     numberTransform.translate({static_cast<float>(TILE_SIZE) * this->boardWidth, DIGIT_HEIGHT})
         .scale({MS_SCALE, MS_SCALE})
-        .translate({-DIGIT_WIDTH, -DIGIT_HEIGHT});
+        .translate({0, -DIGIT_HEIGHT});
     for ([[maybe_unused]] auto i: std::views::iota(0, 3))
     {
         auto numVal = NumberValue(elapsedTime % 10);
@@ -250,8 +250,8 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 
     numberTransform = sf::Transform {};
-    numberTransform.translate({-DIGIT_WIDTH, 0})
-        .translate({-2 * DIGIT_WIDTH * MS_SCALE, 0})
+    numberTransform.translate({0, 0})
+        .translate({-3 * DIGIT_WIDTH * MS_SCALE, 0})
         .translate({static_cast<float>(TILE_SIZE) * this->boardWidth, 0});
     for ([[maybe_unused]] auto i: std::views::iota(0, 3))
     {
