@@ -251,7 +251,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
     numberTransform = sf::Transform {};
     numberTransform.translate({-DIGIT_WIDTH, 0})
-        .translate({-3 * DIGIT_WIDTH * MS_SCALE, 0})
+        .translate({-2 * DIGIT_WIDTH * MS_SCALE, 0})
         .translate({static_cast<float>(TILE_SIZE) * this->boardWidth, 0});
     for ([[maybe_unused]] auto i: std::views::iota(0, 3))
     {
