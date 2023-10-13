@@ -13,7 +13,6 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-// TODO: Add timer and counter
 // TODO: Store high scores
 
 constexpr uint32_t BASE_SIZE {600};
@@ -23,6 +22,70 @@ constexpr float UI_SCALE {0.5};
 constexpr char const* WINDOW_TITLE {"Minesweeper!"};
 sf::Color const BACKGROUND_COLOR {0xE0E0E0FF};
 sf::Color const ALERT_COLOR {0x4A0202FF};
+
+class GameType
+{
+private:
+    int32_t boardWidth;
+    int32_t boardHeight;
+    int32_t mineCount;
+
+public:
+    GameType(int32_t boardWidth, int32_t boardHeight, int32_t mineCount):
+        boardWidth(boardWidth), boardHeight(boardHeight), mineCount(mineCount)
+    {
+    }
+
+    inline auto getBoardWidth() const
+    {
+        return this->boardWidth;
+    }
+
+    inline auto getBoardHeight() const
+    {
+        return this->boardHeight;
+    }
+
+    inline auto getMineCount() const
+    {
+        return this->mineCount;
+    }
+};
+
+struct GameTypeLT
+{
+    bool operator()(GameType const& lhs, GameType const& rhs)
+    {
+        if ((lhs.getBoardWidth() <=> rhs.getBoardWidth()) != 0)
+            return (lhs.getBoardWidth() <=> rhs.getBoardWidth()) < 0;
+        if ((lhs.getBoardHeight() <=> rhs.getBoardHeight()) != 0)
+            return (lhs.getBoardHeight() <=> rhs.getBoardHeight()) < 0;
+        return lhs.getMineCount() < rhs.getMineCount();
+    }
+};
+
+class HighScoreManager
+{
+private:
+    std::map<GameType, int32_t, GameTypeLT> clickTable;
+    std::map<GameType, int32_t, GameTypeLT> timeTable;
+
+    HighScoreManager()
+    {
+        // Load stuff here
+    }
+
+public:
+    HighScoreManager(HighScoreManager const&) = delete;
+    void operator=(HighScoreManager const&)   = delete;
+
+    static auto& getInstance()
+    {
+        static HighScoreManager instance;
+
+        return instance;
+    }
+};
 
 class MainApp
 {
@@ -76,7 +139,7 @@ public:
 
     void resizeWindow()
     {
-        auto [boardWidth, boardHeight] = this->gameBoard.getDrawableSize();
+        auto [boardWidth, boardHeight]    = this->gameBoard.getDrawableSize();
         auto [boardOffsetX, boardOffsetY] = this->gameBoard.getBoardOffset();
         // Okay so this is really dumb. When you resize the window, everything
         //   drawn assumes that the window has its original window size! So
