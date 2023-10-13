@@ -13,6 +13,8 @@ constexpr int32_t DIGIT_WIDTH {47};
 constexpr int32_t DIGIT_HEIGHT {66};
 constexpr float MS_SCALE {0.5};
 
+constexpr uint32_t MARGIN {25};
+
 enum class TileState : uint8_t
 {
     COVERED,
@@ -172,10 +174,15 @@ public:
         this->initialize(this->boardWidth, this->boardHeight, this->mineCount);
     }
 
-    inline std::tuple<uint32_t, uint32_t> getBoardDimensions() const
+    inline std::tuple<uint32_t, uint32_t> getDrawableSize() const
     {
-        return std::make_tuple(this->boardWidth * TILE_SIZE,
-                               this->boardHeight * TILE_SIZE + DIGIT_HEIGHT);
+        return std::make_tuple(this->boardWidth * TILE_SIZE + 2 * MARGIN,
+                               this->boardHeight * TILE_SIZE + 3 * MARGIN + DIGIT_HEIGHT);
+    }
+
+    constexpr std::tuple<uint32_t, uint32_t> getBoardOffset() const
+    {
+        return std::make_tuple(MARGIN, 2 * MARGIN + DIGIT_HEIGHT);
     }
 
     inline auto getGameState() const

@@ -202,13 +202,13 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         numMineRemaining = 0;
 
     sf::Transform numberTransform {};
-    numberTransform.translate({3 * DIGIT_WIDTH, 0});
+    numberTransform.translate(MARGIN, MARGIN).translate(3 * DIGIT_WIDTH, 0);
     for ([[maybe_unused]] auto i: std::views::iota(0, 3))
     {
         auto numVal = NumberValue(numMineRemaining % 10);
         sf::Sprite sprite {this->textureMgr.getSprite(numVal)};
 
-        numberTransform.translate({-DIGIT_WIDTH, 0});
+        numberTransform.translate(-DIGIT_WIDTH, 0);
         states.transform = baseTransform * numberTransform;
 
         target.draw(sprite, states);
@@ -233,15 +233,16 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
         elapsedTime = 0;
 
     numberTransform = sf::Transform {};
-    numberTransform.translate({static_cast<float>(TILE_SIZE) * this->boardWidth, DIGIT_HEIGHT})
+    numberTransform.translate(MARGIN, MARGIN)
+        .translate(static_cast<float>(TILE_SIZE) * this->boardWidth, DIGIT_HEIGHT)
         .scale({MS_SCALE, MS_SCALE})
-        .translate({0, -DIGIT_HEIGHT});
+        .translate(0, -DIGIT_HEIGHT);
     for ([[maybe_unused]] auto i: std::views::iota(0, 3))
     {
         auto numVal = NumberValue(elapsedTime % 10);
         sf::Sprite sprite {this->textureMgr.getSprite(numVal)};
 
-        numberTransform.translate({-DIGIT_WIDTH, 0});
+        numberTransform.translate(-DIGIT_WIDTH, 0);
         states.transform = baseTransform * numberTransform;
 
         target.draw(sprite, states);
@@ -250,15 +251,15 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
     }
 
     numberTransform = sf::Transform {};
-    numberTransform.translate({0, 0})
-        .translate({-3 * DIGIT_WIDTH * MS_SCALE, 0})
-        .translate({static_cast<float>(TILE_SIZE) * this->boardWidth, 0});
+    numberTransform.translate(MARGIN, MARGIN)
+        .translate(-3 * DIGIT_WIDTH * MS_SCALE, 0)
+        .translate(static_cast<float>(TILE_SIZE) * this->boardWidth, 0);
     for ([[maybe_unused]] auto i: std::views::iota(0, 3))
     {
         auto numVal = NumberValue(elapsedTime % 10);
         sf::Sprite sprite {this->textureMgr.getSprite(numVal)};
 
-        numberTransform.translate({-DIGIT_WIDTH, 0});
+        numberTransform.translate(-DIGIT_WIDTH, 0);
         states.transform = baseTransform * numberTransform;
 
         target.draw(sprite, states);
@@ -354,7 +355,7 @@ void GameBoard::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
             sf::Transform translate;
             // Transform chains are right to left!!
-            translate.translate({0, DIGIT_HEIGHT}).translate(x * TILE_SIZE, y * TILE_SIZE);
+            translate.translate(MARGIN, 2 * MARGIN + DIGIT_HEIGHT).translate(x * TILE_SIZE, y * TILE_SIZE);
             states.transform = baseTransform * translate;
 
             target.draw(sprite, states);

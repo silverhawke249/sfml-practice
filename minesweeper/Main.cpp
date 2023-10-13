@@ -17,7 +17,6 @@
 // TODO: Store high scores
 
 constexpr uint32_t BASE_SIZE {600};
-constexpr uint32_t MARGIN {25};
 constexpr uint32_t WINDOW_WIDTH {BASE_SIZE};
 constexpr uint32_t WINDOW_HEIGHT {BASE_SIZE};
 constexpr float UI_SCALE {0.5};
@@ -77,7 +76,8 @@ public:
 
     void resizeWindow()
     {
-        auto [boardWidth, boardHeight] = this->gameBoard.getBoardDimensions();
+        auto [boardWidth, boardHeight] = this->gameBoard.getDrawableSize();
+        auto [boardOffsetX, boardOffsetY] = this->gameBoard.getBoardOffset();
         // Okay so this is really dumb. When you resize the window, everything
         //   drawn assumes that the window has its original window size! So
         //   things get stretched around and stuff... you're gonna need to
@@ -86,16 +86,16 @@ public:
         //   with that lmao
         // If you can, don't resize the window -- keep it the same size. Create
         //   a view instead and tinker around with that.
-        this->window.setSize({static_cast<uint32_t>(UI_SCALE * (boardWidth + 2 * MARGIN)),
-                              static_cast<uint32_t>(UI_SCALE * (boardHeight + 2 * MARGIN + this->menuBarHeight))});
+        this->window.setSize({static_cast<uint32_t>(UI_SCALE * boardWidth),
+                              static_cast<uint32_t>(UI_SCALE * boardHeight + this->menuBarHeight)});
 
-        this->scaleX         = static_cast<float>(WINDOW_WIDTH) / (boardWidth + 2 * MARGIN);
-        this->scaleY         = static_cast<float>(WINDOW_HEIGHT) / (boardHeight + 2 * MARGIN + this->menuBarHeight);
-        this->offsetX        = UI_SCALE * (MARGIN);
-        this->offsetY        = UI_SCALE * (MARGIN + DIGIT_HEIGHT + this->menuBarHeight);
+        this->scaleX         = static_cast<float>(WINDOW_WIDTH) / boardWidth;
+        this->scaleY         = (static_cast<float>(WINDOW_HEIGHT) - this->menuBarHeight) / boardHeight;
+        this->offsetX        = UI_SCALE * boardOffsetX;
+        this->offsetY        = UI_SCALE * boardOffsetY + this->menuBarHeight;
 
         this->boardTransform = sf::Transform {};
-        this->boardTransform.scale({this->scaleX, this->scaleY}).translate(MARGIN, MARGIN + this->menuBarHeight);
+        this->boardTransform.translate(0, 0 + this->menuBarHeight).scale({this->scaleX, this->scaleY});
     }
 
     void operator()()
